@@ -4,7 +4,7 @@
  */
 
 export function validateConfig() {
-  const required = ['ASTRASYNC_API_KEY'];
+  const required = ['ASTRASYNC_API_URL'];
   const missing = [];
   
   for (const key of required) {
@@ -20,18 +20,21 @@ export function validateConfig() {
     );
   }
   
-  // Validate API URL format if provided
-  if (process.env.ASTRASYNC_API_URL) {
-    try {
-      new URL(process.env.ASTRASYNC_API_URL);
-    } catch (e) {
-      throw new Error('Invalid ASTRASYNC_API_URL format. Must be a valid URL.');
-    }
+  // Validate API URL format
+  try {
+    new URL(process.env.ASTRASYNC_API_URL);
+  } catch (e) {
+    throw new Error('Invalid ASTRASYNC_API_URL format. Must be a valid URL.');
+  }
+  
+  // Check if email is provided
+  if (!process.env.DEVELOPER_EMAIL) {
+    console.warn('Warning: DEVELOPER_EMAIL not set. Using default: developer@astrasync.ai');
   }
   
   return {
-    apiKey: process.env.ASTRASYNC_API_KEY,
-    apiUrl: process.env.ASTRASYNC_API_URL || 'https://api.astrasync.ai',
+    apiUrl: process.env.ASTRASYNC_API_URL,
+    developerEmail: process.env.DEVELOPER_EMAIL || 'developer@astrasync.ai',
     nodeEnv: process.env.NODE_ENV || 'production'
   };
 }

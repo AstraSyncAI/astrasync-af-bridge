@@ -7,8 +7,8 @@ dotenv.config();
 async function demo() {
   console.log('🚀 AstraSync + Letta Integration Demo\n');
   
-  // Initialize the bridge
-  const bridge = new AgentFileBridge(process.env.ASTRASYNC_API_KEY);
+  // Initialize the bridge (no API key needed for dev preview!)
+  const bridge = new AgentFileBridge(process.env.ASTRASYNC_API_URL);
   
   try {
     // Register a Letta agent

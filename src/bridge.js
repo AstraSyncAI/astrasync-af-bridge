@@ -13,13 +13,13 @@ import fs from 'fs/promises';
 import path from 'path';
 
 export class AgentFileBridge {
-  constructor(apiKey, apiUrl = 'https://api.astrasync.ai') {
-    this.apiKey = apiKey;
-    this.apiUrl = apiUrl;
+  constructor(apiUrl = 'https://api.astrasync.ai') {
+    // No API key needed for developer preview!
+    this.apiUrl = apiUrl || process.env.ASTRASYNC_API_URL;
+    
     this.axios = axios.create({
-      baseURL: apiUrl,
+      baseURL: this.apiUrl,
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       }
     });
@@ -132,6 +132,7 @@ export class AgentFileBridge {
     return {
       name: agentName,
       description: agent.description || agent.system || "Imported from Letta Agent File",
+      email: process.env.DEVELOPER_EMAIL || "developer@astrasync.ai",
       version: agent.version || "1.0.0",
       owner: agent.creator || "Letta User",
       ownerUrl: "https://letta.com",
@@ -161,8 +162,24 @@ export class AgentFileBridge {
   }
 
   async registerWithAstraSync(registrationData) {
+    // Optional demo mode for testing without API
+    if (process.env.DEMO_MODE === 'true') {
+      console.log('🔧 Running in demo mode...');
+      
+      // Simulate API response
+      return {
+        agentId: `TEMP-${Date.now().toString(36).toUpperCase()}`,
+        status: "pending_registration",
+        trustScore: {
+          value: Math.floor(Math.random() * 30) + 70,
+          type: "temporary"
+        },
+        message: "Developer preview - using simulated response"
+      };
+    }
+    
     try {
-      const response = await this.axios.post('/v1/agents/register', registrationData);
+      const response = await this.axios.post('/v1/register', registrationData);
       return response.data;
     } catch (error) {
       // Align error handling with API patterns
@@ -178,7 +195,7 @@ export class AgentFileBridge {
           throw new Error(`AstraSync API error: ${data.error || data.message || error.response.statusText}`);
         }
       } else if (error.request) {
-        throw new Error('Unable to connect to AstraSync API. Please check your network connection.');
+        throw new Error('Unable to connect to AstraSync API. Please check your network connection and API URL.\nAPI URL: ' + this.apiUrl);
       }
       throw error;
     }
@@ -186,7 +203,8 @@ export class AgentFileBridge {
 
   async verifyAgent(agentId) {
     try {
-      const response = await this.axios.get(`/v1/agents/${agentId}/verify`);
+      // For developer preview, we'll use a simple verify endpoint
+      const response = await this.axios.post('/v1/verify', { agentId });
       return response.data;
     } catch (error) {
       if (error.response) {

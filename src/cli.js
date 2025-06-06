@@ -27,15 +27,9 @@ program
 program
   .command('register <file>')
   .description('Register a Letta .af file with AstraSync')
-  .option('-k, --api-key <key>', 'AstraSync API key (or use ASTRASYNC_API_KEY env var)')
   .option('-u, --api-url <url>', 'AstraSync API URL', 'https://api.astrasync.ai')
   .action(async (file, options) => {
-    const apiKey = options.apiKey || process.env.ASTRASYNC_API_KEY;
-    
-    if (!apiKey) {
-      console.error(chalk.red('Error: API key is required. Use --api-key or set ASTRASYNC_API_KEY environment variable'));
-      process.exit(1);
-    }
+    const apiUrl = options.apiUrl || process.env.ASTRASYNC_API_URL;
     
     const spinner = ora('Reading agent file...').start();
     
@@ -45,8 +39,8 @@ program
       
       spinner.text = 'Parsing Letta agent file...';
       
-      // Initialize bridge
-      const bridge = new AgentFileBridge(apiKey, options.apiUrl);
+      // Initialize bridge (no API key needed!)
+      const bridge = new AgentFileBridge(apiUrl);
       
       spinner.text = 'Registering with AstraSync...';
       
@@ -90,20 +84,14 @@ program
 program
   .command('verify <agentId>')
   .description('Verify an AstraSync agent registration')
-  .option('-k, --api-key <key>', 'AstraSync API key (or use ASTRASYNC_API_KEY env var)')
   .option('-u, --api-url <url>', 'AstraSync API URL', 'https://api.astrasync.ai')
   .action(async (agentId, options) => {
-    const apiKey = options.apiKey || process.env.ASTRASYNC_API_KEY;
-    
-    if (!apiKey) {
-      console.error(chalk.red('Error: API key is required. Use --api-key or set ASTRASYNC_API_KEY environment variable'));
-      process.exit(1);
-    }
+    const apiUrl = options.apiUrl || process.env.ASTRASYNC_API_URL;
     
     const spinner = ora('Verifying agent...').start();
     
     try {
-      const bridge = new AgentFileBridge(apiKey, options.apiUrl);
+      const bridge = new AgentFileBridge(apiUrl);
       const result = await bridge.verifyAgent(agentId);
       
       spinner.succeed('Verification complete!');
