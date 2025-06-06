@@ -70,15 +70,37 @@ export class AgentFileBridge {
       // New format: Direct JSON
       const agentData = JSON.parse(fileContent);
       
-      // Extract additional metadata
-      const metadata = {
+      // Debug: Show structure
+      console.log('📋 AF file structure:', Object.keys(agentData));
+      
+      // Handle different possible structures
+      // If the entire file IS the agent data
+      if (agentData.agent_type || agentData.name) {
+        return {
+          agent: agentData,
+          files: ['agent.json'],
+          hasMemory: !!agentData.memory || !!agentData.core_memory,
+          hasTools: !!agentData.tools && agentData.tools.length > 0
+        };
+      }
+      
+      // If it's wrapped in an agent property
+      if (agentData.agent) {
+        return {
+          agent: agentData.agent,
+          files: ['agent.json'],
+          hasMemory: !!agentData.agent.memory || !!agentData.agent.core_memory,
+          hasTools: !!agentData.agent.tools && agentData.agent.tools.length > 0
+        };
+      }
+      
+      // Otherwise assume the whole thing is the agent
+      return {
         agent: agentData,
         files: ['agent.json'],
-        hasMemory: !!agentData.memory || !!agentData.core_memory,
-        hasTools: !!agentData.tools && agentData.tools.length > 0
+        hasMemory: false,
+        hasTools: false
       };
-      
-      return metadata;
     } else {
       // Legacy format: ZIP file
       try {
@@ -111,6 +133,9 @@ export class AgentFileBridge {
   mapToAstraSync(afData) {
     const { agent } = afData;
     
+    // Debug: Log what we received from Letta
+    console.log('🔍 Letta agent data keys:', Object.keys(agent));
+    
     // Map Letta capabilities to AstraSync format
     const capabilities = {
       streaming: true, // Letta agents typically support streaming
@@ -129,23 +154,20 @@ export class AgentFileBridge {
     const agentName = agent.name || agent.agent_name || "Unnamed Letta Agent";
     const agentType = agent.agent_type || agent.type || "letta";
     
+    // Simplify for developer preview API
     return {
       name: agentName,
       description: agent.description || agent.system || "Imported from Letta Agent File",
       email: process.env.DEVELOPER_EMAIL || "developer@astrasync.ai",
-      version: agent.version || "1.0.0",
-      owner: agent.creator || "Letta User",
-      ownerUrl: "https://letta.com",
-      capabilities,
-      skills,
-      metadata: {
-        source: "letta-af",
-        originalId: agent.id || agent.agent_id,
-        agentType: agentType,
-        memoryConfig: agent.memory || agent.memory_config,
-        llmConfig: agent.llm_config || agent.model_config,
-        importedAt: new Date().toISOString()
-      }
+      agentType: agentType,
+      // Flatten capabilities for simpler API
+      streaming: capabilities.streaming,
+      tools: skills.length,
+      memory: afData.hasMemory,
+      // Essential metadata only
+      source: "letta-af",
+      lettaId: agent.id || agent.agent_id,
+      importedAt: new Date().toISOString()
     };
   }
 
@@ -177,6 +199,9 @@ export class AgentFileBridge {
         message: "Developer preview - using simulated response"
       };
     }
+    
+    // Log what we're sending for debugging
+    console.log('📤 Sending registration data:', JSON.stringify(registrationData, null, 2));
     
     try {
       const response = await this.axios.post('/v1/register', registrationData);
