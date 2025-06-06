@@ -157,8 +157,9 @@ export class AgentFileBridge {
     // Simplify for developer preview API
     return {
       name: agentName,
+      owner: process.env.DEVELOPER_EMAIL || "developer@astrasync.ai",  
       description: agent.description || agent.system || "Imported from Letta Agent File",
-      email: process.env.DEVELOPER_EMAIL || "developer@astrasync.ai",
+      email: process.env.DEVELOPER_EMAIL || "developer@astrasync.ai",  // Keep for backward compatibility
       agentType: agentType,
       // Flatten capabilities for simpler API
       streaming: capabilities.streaming,
@@ -200,11 +201,29 @@ export class AgentFileBridge {
       };
     }
     
+    // API expects email at root, agent data nested
+    const apiPayload = {
+      email: registrationData.email || process.env.DEVELOPER_EMAIL || "developer@astrasync.ai",
+      agent: {
+        name: registrationData.name,
+        owner: registrationData.owner || registrationData.email || process.env.DEVELOPER_EMAIL || "developer@astrasync.ai",
+        // Include other fields the API might want
+        description: registrationData.description,
+        agentType: registrationData.agentType,
+        streaming: registrationData.streaming,
+        tools: registrationData.tools,
+        memory: registrationData.memory,
+        source: registrationData.source,
+        lettaId: registrationData.lettaId,
+        importedAt: registrationData.importedAt
+      }
+    };
+    
     // Log what we're sending for debugging
-    console.log('📤 Sending registration data:', JSON.stringify(registrationData, null, 2));
+    console.log('📤 Sending registration data:', JSON.stringify(apiPayload, null, 2));
     
     try {
-      const response = await this.axios.post('/v1/register', registrationData);
+      const response = await this.axios.post('/v1/register', apiPayload);
       return response.data;
     } catch (error) {
       // Align error handling with API patterns
