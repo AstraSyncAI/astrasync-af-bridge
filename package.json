@@ -1,0 +1,51 @@
+{
+  "name": "@astrasync/af-bridge",
+  "version": "0.1.0",
+  "description": "Bridge for importing Letta Agent Files (.af) into AstraSync compliance platform - Developer Preview",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/cli.js",
+    "register": "node src/cli.js register",
+    "dev": "nodemon src/cli.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "health": "node src/healthcheck.js"
+  },
+  "keywords": [
+    "astrasync",
+    "letta",
+    "agent-file",
+    "af",
+    "compliance",
+    "blockchain",
+    "ai-agents",
+    "developer-preview"
+  ],
+  "author": "AstraSync AI",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
+    "jszip": "^3.10.1",
+    "chalk": "^5.3.0",
+    "ora": "^7.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "@jest/globals": "^29.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AstraSyncAI/astrasync-af-bridge.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {}
+  }
+}

@@ -1,0 +1,101 @@
+# AstraSync AF Bridge
+
+Bridge for importing Letta Agent Files (.af) into the AstraSync compliance platform. This allows any Letta agent to gain blockchain-verified compliance registration with minimal friction.
+
+> **Developer Preview**: This integration uses temporary IDs and simulated trust scores. Production blockchain registration will be available upon full platform launch.
+
+## Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Register a Letta agent
+npm run register path/to/agent.af
+
+# Or use the CLI directly
+node src/cli.js register my-agent.af --api-key YOUR_API_KEY
+```
+
+## What This Does
+
+1. **Parses Letta .af files** - Extracts agent metadata, tools, and configuration
+2. **Maps to AstraSync format** - Converts Letta's structure to AstraSync's compliance framework
+3. **Registers with blockchain** - Creates immutable compliance record
+4. **Returns unified response** - Provides both AstraSync ID and original Letta metadata
+
+## Architecture
+
+```
+Letta .af file → AF Parser → Metadata Mapper → AstraSync API → Blockchain Registration
+                                                      ↓
+                                                 Trust Score & ID
+```
+
+## Example Output
+
+```json
+{
+  "astraSync": {
+    "agentId": "TEMP-LX9K7M",
+    "status": "pending_registration",
+    "trustScore": {
+      "value": 85,
+      "type": "temporary"
+    },
+    "verificationUrl": "https://astrasync.ai/verify/TEMP-LX9K7M",
+    "message": "Developer preview - using temporary storage"
+  },
+  "letta": {
+    "originalFile": "research-agent.af",
+    "agentName": "Deep Research Agent",
+    "preservedState": true
+  },
+  "message": "Letta agent successfully registered with AstraSync compliance layer"
+}
+```
+
+## Integration with Existing Tools
+
+This bridge works alongside:
+- [astrasync-api](https://github.com/AstraSyncAI/astrasync-api) - Core registration API
+- [astrasync-mcp-bridge](https://github.com/AstraSyncAI/astrasync-mcp-bridge) - MCP protocol support
+
+## Use Cases
+
+- **Compliance for Letta Agents**: Add regulatory compliance to any Letta agent
+- **Cross-Platform Portability**: Move agents between Letta and other platforms while maintaining compliance
+- **Enterprise Deployment**: Enable Letta agents in regulated environments
+
+## Configuration
+
+Set environment variables or use `.env` file:
+
+```env
+ASTRASYNC_API_KEY=your_api_key
+ASTRASYNC_API_URL=https://api.astrasync.ai # Optional, defaults to production
+```
+
+## Development
+
+```bash
+# Run tests
+npm test
+
+# Run in development mode
+npm run dev
+
+# Build for production
+npm run build
+```
+
+## Developer Preview Notes
+
+- Uses temporary PostgreSQL storage via Railway
+- Generates TEMP- prefixed IDs until blockchain integration
+- Trust scores are simulated (70-100 range)
+- Full production features available upon platform launch
+
+## License
+
+MIT - See LICENSE file for details
