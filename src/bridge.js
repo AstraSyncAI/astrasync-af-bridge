@@ -61,28 +61,51 @@ export class AgentFileBridge {
   }
 
   async parseAgentFile(afFilePath) {
-    // Read the .af file (it's a zip file)
+    // Read the .af file
     const data = await fs.readFile(afFilePath);
-    const zip = await JSZip.loadAsync(data);
     
-    // Extract agent.json from the zip
-    const agentJsonFile = zip.file('agent.json');
-    if (!agentJsonFile) {
-      throw new Error('No agent.json found in .af file');
+    // Check if it's JSON or ZIP format
+    const fileContent = data.toString('utf-8');
+    if (fileContent.trim().startsWith('{')) {
+      // New format: Direct JSON
+      const agentData = JSON.parse(fileContent);
+      
+      // Extract additional metadata
+      const metadata = {
+        agent: agentData,
+        files: ['agent.json'],
+        hasMemory: !!agentData.memory || !!agentData.core_memory,
+        hasTools: !!agentData.tools && agentData.tools.length > 0
+      };
+      
+      return metadata;
+    } else {
+      // Legacy format: ZIP file
+      try {
+        const zip = await JSZip.loadAsync(data);
+        
+        // Extract agent.json from the zip
+        const agentJsonFile = zip.file('agent.json');
+        if (!agentJsonFile) {
+          throw new Error('No agent.json found in .af file');
+        }
+        
+        const agentJsonContent = await agentJsonFile.async('string');
+        const agentData = JSON.parse(agentJsonContent);
+        
+        // Extract additional metadata if available
+        const metadata = {
+          agent: agentData,
+          files: Object.keys(zip.files),
+          hasMemory: !!zip.file('memory.json'),
+          hasTools: !!agentData.tools && agentData.tools.length > 0
+        };
+        
+        return metadata;
+      } catch (error) {
+        throw new Error('Invalid .af file format. Expected JSON or ZIP.');
+      }
     }
-    
-    const agentJsonContent = await agentJsonFile.async('string');
-    const agentData = JSON.parse(agentJsonContent);
-    
-    // Extract additional metadata if available
-    const metadata = {
-      agent: agentData,
-      files: Object.keys(zip.files),
-      hasMemory: !!zip.file('memory.json'),
-      hasTools: !!agentData.tools && agentData.tools.length > 0
-    };
-    
-    return metadata;
   }
 
   mapToAstraSync(afData) {
@@ -102,8 +125,12 @@ export class AgentFileBridge {
     // Map tools to skills
     const skills = this.mapLettaToolsToSkills(agent.tools || []);
     
+    // Handle different field names between formats
+    const agentName = agent.name || agent.agent_name || "Unnamed Letta Agent";
+    const agentType = agent.agent_type || agent.type || "letta";
+    
     return {
-      name: agent.name || "Unnamed Letta Agent",
+      name: agentName,
       description: agent.description || agent.system || "Imported from Letta Agent File",
       version: agent.version || "1.0.0",
       owner: agent.creator || "Letta User",
@@ -112,9 +139,10 @@ export class AgentFileBridge {
       skills,
       metadata: {
         source: "letta-af",
-        originalId: agent.id,
-        memoryConfig: agent.memory,
-        llmConfig: agent.llm_config,
+        originalId: agent.id || agent.agent_id,
+        agentType: agentType,
+        memoryConfig: agent.memory || agent.memory_config,
+        llmConfig: agent.llm_config || agent.model_config,
         importedAt: new Date().toISOString()
       }
     };
