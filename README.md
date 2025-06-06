@@ -13,11 +13,14 @@ npm install
 # Set up your email in .env file
 echo "DEVELOPER_EMAIL=your-email@example.com" >> .env
 
-# Register a Letta agent
+# Register a Letta agent (saves JSON in current directory)
 npm run register path/to/agent.af
 
-# Or use the CLI directly
-node src/cli.js register my-agent.af
+# Or specify output location
+node src/cli.js register my-agent.af -o results/output.json
+
+# Or use full path
+node src/cli.js register /path/to/agent.af --output /path/to/output.json
 ```
 
 ## What This Does

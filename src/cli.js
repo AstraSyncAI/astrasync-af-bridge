@@ -13,6 +13,7 @@ import ora from 'ora';
 import dotenv from 'dotenv';
 import { AgentFileBridge } from './bridge.js';
 import fs from 'fs/promises';
+import path from 'path';
 
 // Load environment variables
 dotenv.config();
@@ -28,6 +29,7 @@ program
   .command('register <file>')
   .description('Register a Letta .af file with AstraSync')
   .option('-u, --api-url <url>', 'AstraSync API URL', 'https://api.astrasync.ai')
+  .option('-o, --output <path>', 'Output file path (defaults to current directory)')
   .action(async (file, options) => {
     const apiUrl = options.apiUrl || process.env.ASTRASYNC_API_URL;
     
@@ -70,7 +72,14 @@ program
       console.log(chalk.green(`\n${result.message}\n`));
       
       // Save result to file
-      const outputFile = file.replace('.af', '-astrasync.json');
+      let outputFile;
+      if (options.output) {
+        outputFile = options.output;
+      } else {
+        // Default to current directory with same filename
+        outputFile = path.basename(file).replace('.af', '-astrasync.json');
+      }
+      
       await fs.writeFile(outputFile, JSON.stringify(result, null, 2));
       console.log(chalk.gray(`Results saved to: ${outputFile}`));
       
