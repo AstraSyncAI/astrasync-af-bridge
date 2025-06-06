@@ -13,9 +13,9 @@ import fs from 'fs/promises';
 import path from 'path';
 
 export class AgentFileBridge {
-  constructor(apiUrl = 'https://api.astrasync.ai') {
-    // No API key needed for developer preview!
-    this.apiUrl = apiUrl || process.env.ASTRASYNC_API_URL;
+  constructor(apiUrl) {
+    // Use environment variable first, then parameter, then default
+    this.apiUrl = process.env.ASTRASYNC_API_URL || apiUrl || 'https://api.astrasync.ai';
     
     this.axios = axios.create({
       baseURL: this.apiUrl,
