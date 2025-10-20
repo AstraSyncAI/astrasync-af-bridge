@@ -1,7 +1,7 @@
 {
   "name": "@astrasync/af-bridge",
-  "version": "0.1.0",
-  "description": "Bridge for importing Letta Agent Files (.af) into AstraSync compliance platform - Developer Preview",
+  "version": "1.0.0",
+  "description": "Production bridge for importing Letta Agent Files (.af) into AstraSync compliance platform",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
@@ -20,7 +20,7 @@
     "compliance",
     "blockchain",
     "ai-agents",
-    "developer-preview"
+    "production"
   ],
   "author": "AstraSync AI",
   "license": "MIT",

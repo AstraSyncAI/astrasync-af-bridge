@@ -1,10 +1,10 @@
 # Contributing to AstraSync AF Bridge
 
-Thank you for your interest in contributing to the AstraSync AF Bridge! This is a developer preview, and we welcome feedback and contributions.
+Thank you for your interest in contributing to the AstraSync AF Bridge! This is a production, and we welcome feedback and contributions.
 
-## Developer Preview Status
+## Production Status
 
-This bridge is currently in developer preview, which means:
+This bridge is currently in production, which means:
 - Uses temporary IDs (TEMP- prefix)
 - Simulated trust scores (70-100 range)
 - PostgreSQL temporary storage via Railway

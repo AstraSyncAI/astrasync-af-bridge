@@ -2,7 +2,7 @@
 
 Bridge for importing Letta Agent Files (.af) into the AstraSync compliance platform. This allows any Letta agent to gain blockchain-verified compliance registration with minimal friction.
 
-> **Developer Preview**: This integration uses temporary IDs and simulated trust scores. Production blockchain registration will be available upon full platform launch. No API key required!
+> **Production**: This integration uses temporary IDs and simulated trust scores. Production blockchain registration will be available upon full platform launch. No API key required!
 
 ## Quick Start
 
@@ -78,7 +78,7 @@ This bridge works alongside:
 Set environment variables or use `.env` file:
 
 ```env
-ASTRASYNC_API_URL=https://astrasync-api-production.up.railway.app  # Optional, this is the default
+ASTRASYNC_API_URL=https://astrasync.ai/api  # Optional, this is the default
 DEVELOPER_EMAIL=your-email@example.com  # Required for registration
 ```
 
@@ -95,7 +95,7 @@ npm run dev
 npm run build
 ```
 
-## Developer Preview Notes
+## Production Notes
 
 - Uses temporary PostgreSQL storage via Railway
 - Generates TEMP- prefixed IDs until blockchain integration
